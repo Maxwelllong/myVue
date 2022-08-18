@@ -30,6 +30,8 @@ export function initMixin(vm) {
         const render = compileToFunction(template);
         ops.render = render;
       }
+    }else{
+      console.log('ops.render', ops.render)
     }
   };
 }

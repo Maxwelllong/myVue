@@ -20,14 +20,11 @@ const methods = [
   "sort",
   "reverse"
 ];
-// 需要对新增的数据进行劫持
 
+// 需要对新增的数据进行劫持
 methods.forEach(method => {
   newArrayPrototype[method] = function(...args) {
     const res = oldArrayProto[method].call(this, ...args);
-
-    console.log("method", method);
-
     let inserted;
     let ob = this.__ob__;
     switch (method) {

@@ -19,11 +19,11 @@ function parseHTML(html) {
 
   const ELEMENT_TYPE = 1 ;// 元素类型
   const TEXT_TYPE = 3 ;//文本类型
-  const stack = [] ;//创建一个栈型结构
+  const stack = [] ;//创建一个栈型结构用于确定元素的父子结构
   let currentParent;
   let root ;
 
-  // 创建ast语法树木
+  // 创建ast语法树 - 用于将html转化为js语法 - 语法层面转化
   function createASTElement(tag,attrs){
     return {
       tag,
@@ -98,14 +98,13 @@ function parseHTML(html) {
         advance(text.length)
       }
     }
-    // break
-    // debugger
   }
-  console.log('html', html)
+  console.log('ast', ast)
 }
 
 export function compileToFunction(template) {
   // 1.将template转化为js语法
+  console.log('template', template)
   parseHTML(template);
   // 2.生成render方法(render方法执行后的返回结果是虚拟dom)
 }
