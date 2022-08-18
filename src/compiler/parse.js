@@ -115,8 +115,6 @@ function parseHTML(html) {
         advance(text.length)
       }
     }
-    // break
-    // debugger
   }
   return root
 }
