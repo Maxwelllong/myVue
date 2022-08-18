@@ -31,5 +31,6 @@ export function initMixin(vm) {
         ops.render = render;
       }
     }
+    console.log('ops.render', ops.render)
   };
 }

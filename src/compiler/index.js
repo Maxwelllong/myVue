@@ -13,7 +13,7 @@ function getProps(attrs){
   for(let i=0;i<attrs.length;i++){
     let attr = attrs[i]
     if(attr.name === 'style'){
-      let obj = {};
+      let obj = {}
       attr.value.split(';').forEach(item => {
         let [key,value] =  item.split(':')
         obj[key] = value
@@ -22,7 +22,7 @@ function getProps(attrs){
     }
     str += `${attr.name} : ${JSON.stringify(attr.value)},`
   }
-  return `${str.slice(0,-1)}`
+  return `{${str.slice(0,-1)}}`
 }
 const defaultTagRE = /\{\{((?:.|\r?|\n)+?)\}\}/g; // 匹配{{name}}文本
 function gen(node){
@@ -32,41 +32,45 @@ function gen(node){
   }else if(node.type === 3){
     // 文本节点
     let text = node.text
-    if(!defaultTagRE.exec(text)){
+    if(!defaultTagRE.test(text)){
       return `_v(${JSON.stringify(text)})`
     }else{
-      let token = [];
-      let match ;
-      let lastIndex = 0;
+      let tokens = []
+      let match
       defaultTagRE.lastIndex = 0
-      while(match =  defaultTagRE.exec(text)){
-        let index = match.index;
+      let lastIndex = 0
+      while(match = defaultTagRE.exec(text)){
+        let index =  match.index //匹配的位置
         if(index > lastIndex){
-          token.push(JSON.stringify( text.slice(lastIndex,index)))
+          tokens.push(text.slice(lastIndex,index))
         }
-        token.push(`_s(${match[1].trim()})`)
+        tokens.push(`_s(${match[1].trim()})`)
         lastIndex = index + match[0].length
       }
       if(lastIndex < text.length){
-        token.push(JSON.stringify(text.slice(lastIndex)))
+        tokens.push(text.slice(lastIndex))
       }
-      return `_v(${token.join('+')})`
+      return `_v(${tokens.join('+')})`
     }
   }
 }
 
-function genChildren(el){
- return el.map(child => gen(child))
+function genChildren(children){
+  if(children){
+     return children.map(child => gen(child)).join(',')
+  }
 }
 
 function codeGen(ast){
   let children = genChildren(ast.children)
-  let code = (`_c("${ast.tag}",${
+  let code = `_c("${ast.tag}",
+  ${
     ast.attrs.length > 0 ? getProps(ast.attrs) : 'null'
-  }${
-    ast.children.length ? `,${children}`:'null'
   }
-  )`)
+  ${
+    ast.children.length ? `,${children}`:''
+  }
+  )`
   return code
 }
 
@@ -74,7 +78,21 @@ export function compileToFunction(template) {
   // 1.将template转化为js语法
   let ast = parseHTML(template)
   // 2.生成render方法(render方法执行后的返回结果是虚拟dom)
-  console.log('ast', ast)
-  const genCode =  codeGen(ast)
-  console.log('genCode', genCode)
+    /**
+     *   目标生成一个render函数
+     *   render(h){
+     *     return h('div',{id：‘app'},h('div',{style:{color:'red'}},_v(_s(name)+’hello')),
+     *      _c('div',undefine,)
+     *     )
+     *   }
+     *   其中 _s函数表示转为字符串函数 target._s== toString
+     *   其中 _v函数表示创建文本节点 target._v== createTextVNode
+     *   其中 _c函数表示创建元素节点 target._c== createElement
+     */
+
+  let code =  codeGen(ast)
+  code = `with(this){return ${code}}`
+  let render = new Function(code)
+
+  return render
 }
