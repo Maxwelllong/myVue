@@ -27,8 +27,8 @@ function parseHTML(html) {
     return {
       tag,
       type:ELEMENT_TYPE,
-      children:[],
       attrs,
+      children:[],
       parent:null
     }
   }
@@ -66,6 +66,9 @@ function parseHTML(html) {
   }
 
   function parseStartTag() {
+
+    // console.log('startTagOpen', startTagOpen)
+    // 匹配<div
     const start = html.match(startTagOpen);
     if (start) {
       const match = {
@@ -74,6 +77,7 @@ function parseHTML(html) {
       };
       advance(start[0].length);
       let end, attr;
+      console.log('startTagClose', startTagClose)
       while (
         !(end = html.match(startTagClose)) &&
         (attr = html.match(attribute))
@@ -93,6 +97,7 @@ function parseHTML(html) {
   }
   // 循环遍历 删除对应的标签
   while (html) {
+    // 找到开始与结束标签
     let textEnd = html.indexOf("<")
     if(textEnd == 0){
       // 开始标签
@@ -101,6 +106,9 @@ function parseHTML(html) {
         start(startTagMatch.tagName,startTagMatch.attrs)
         continue
       }
+      // 结束标签
+      // console.log('endTag', endTag)
+      // 匹配 </div>
       let endTagMatch = html.match(endTag)
       if(endTagMatch){
         end(endTagMatch[1])

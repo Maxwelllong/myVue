@@ -1,5 +1,6 @@
 import { initState } from "./initState";
 import { compileToFunction } from "./compiler";
+import { mountComponent } from './lifecycle'
 
 export function initMixin(vm) {
   vm.prototype._init = function(options) {
@@ -14,6 +15,7 @@ export function initMixin(vm) {
     const vm = this;
     el = document.querySelector(el);
     let ops = vm.$options;
+    // 模板转js
     if (!ops.render) {
       //先看是否有render函数
       let template; // 没有render看一下是否有template,没写template采用外部template
@@ -31,6 +33,7 @@ export function initMixin(vm) {
         ops.render = render;
       }
     }
-    console.log('ops.render', ops.render)
+    // 组件的挂载
+    mountComponent(vm,el);
   };
 }

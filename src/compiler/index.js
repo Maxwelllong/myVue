@@ -30,11 +30,11 @@ function gen(node){
     // 元素节点
     return codeGen(node)
   }else if(node.type === 3){
-    // 文本节点
+    // 文本节点hello world
     let text = node.text
     if(!defaultTagRE.test(text)){
       return `_v(${JSON.stringify(text)})`
-    }else{
+    }else{ //匹配文本  {{name}}
       let tokens = []
       let match
       defaultTagRE.lastIndex = 0
@@ -42,13 +42,13 @@ function gen(node){
       while(match = defaultTagRE.exec(text)){
         let index =  match.index //匹配的位置
         if(index > lastIndex){
-          tokens.push(text.slice(lastIndex,index))
+          tokens.push(`"${text.slice(lastIndex,index)}"`)
         }
         tokens.push(`_s(${match[1].trim()})`)
         lastIndex = index + match[0].length
       }
       if(lastIndex < text.length){
-        tokens.push(text.slice(lastIndex))
+        tokens.push(`"${text.slice(lastIndex)}"`)
       }
       return `_v(${tokens.join('+')})`
     }
@@ -63,6 +63,7 @@ function genChildren(children){
 
 function codeGen(ast){
   let children = genChildren(ast.children)
+  // _c 表示生成元素函数
   let code = `_c("${ast.tag}",
   ${
     ast.attrs.length > 0 ? getProps(ast.attrs) : 'null'
@@ -74,8 +75,9 @@ function codeGen(ast){
   return code
 }
 
+// 将模板进行编译成js语法
 export function compileToFunction(template) {
-  // 1.将template转化为js语法
+  // 1.将template转化为js语法 返回一个数组root[]包含所有的节点及文本
   let ast = parseHTML(template)
   // 2.生成render方法(render方法执行后的返回结果是虚拟dom)
     /**
@@ -89,7 +91,6 @@ export function compileToFunction(template) {
      *   其中 _v函数表示创建文本节点 target._v== createTextVNode
      *   其中 _c函数表示创建元素节点 target._c== createElement
      */
-
   let code =  codeGen(ast)
   code = `with(this){return ${code}}`
   let render = new Function(code)
