@@ -7,7 +7,7 @@
  * description: 创建虚拟节点
  */
 // h() _c()
-export function createElementVNode(vm,tag,data,...children){
+export function createElementVNode(vm,tag,data={},...children){
   if(data === null){
     data = {}
   }
@@ -15,7 +15,7 @@ export function createElementVNode(vm,tag,data,...children){
   if(key){
     delete data.key
   }
-  return vnode(vm,tag,data={},children)
+  return vnode(vm,tag,key,data,children)
 }
 
 // _v()

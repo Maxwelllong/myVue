@@ -77,7 +77,7 @@ function parseHTML(html) {
       };
       advance(start[0].length);
       let end, attr;
-      console.log('startTagClose', startTagClose)
+      // console.log('startTagClose', startTagClose)
       while (
         !(end = html.match(startTagClose)) &&
         (attr = html.match(attribute))

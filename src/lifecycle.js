@@ -13,10 +13,67 @@
  */
 import {createTextVNode,createElementVNode} from './vdom'
 
+function createElm(vnode){
+  // console.log('vnode-c', vnode)
+  let {tag,key,data,children,text} = vnode
+  if(typeof tag === 'string'){
+    // 标签
+    vnode.el = document.createElement(tag)
+    console.log('vnode.el', vnode.el)
+    patchProps(vnode.el,data) // 更新属性
+    console.log('children', children)
+    if(children){
+      children.forEach(child => {
+        vnode.el.appendChild(createElm(child))
+      })
+    }
+  }else{
+    // 文本
+    vnode.el = document.createTextNode(text)
+  }
+  return vnode.el
+}
+function patchProps(el,props){
+  for(let key in props){
+    // console.log('key', key)
+    if(key === 'style'){
+      for(let styleName in props.style){
+        el.style[styleName] = props.style[styleName]
+      }
+    }else{
+      el.setAttribute(key,props[key])
+    }
+  }
+}
+
+function patch(oldVNode,vnode){
+  //  利用vnode替换el节点
+  const isRealElement = oldVNode.nodeType
+  if(isRealElement){ //判断是否为真实元素
+    const elm = oldVNode
+    const parentElm = elm.parentNode // 拿到父元素
+    console.log('vnode-elm', elm)
+    console.log('vnode-parentElm', parentElm)
+    let newElm =  createElm(vnode)
+    // console.log('newElm', newElm)
+    parentElm.insertBefore(newElm,elm.nextSibling)
+    parentElm.removeChild(elm)
+    return newElm
+  }else {
+    // diff算法
+  }
+}
+
 export function initLifeCycle(Vue){
   // 挂载虚拟dom
   Vue.prototype._update = function (vnode){
-    console.log('update',vnode)
+    const vm = this
+    const el = vm.$el
+    //有初始化和更新节点的操作
+    // console.log('el', el)
+    // console.log('vnode', vnode)
+    vm.$el = patch(el,vnode)
+    console.log('vm.$el', vm.$el)
   }
   /**
    * _c('div',{},...children)
@@ -42,13 +99,17 @@ export function initLifeCycle(Vue){
   // 渲染虚拟dom
   Vue.prototype._render = function (){
     const vm = this
+    // console.log('vm.name', vm.name)
+    // console.log('vm.age', vm.age)
     return vm.$options.render.call(vm)
   }
 }
 
 export function mountComponent(vm,el){
+  vm.$el = el
   // 1.调用render方法产生虚拟节点
-  vm._update(vm._render())
+  console.log('vm._render(123)',vm._update (vm._render()))
+  // vm._update(vm._render())
   // 2.根据虚拟节点DOM产生真实DOM
   // 3.插入到el元素中
 }

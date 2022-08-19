@@ -80,7 +80,7 @@ export function compileToFunction(template) {
   // 1.将template转化为js语法 返回一个数组root[]包含所有的节点及文本
   let ast = parseHTML(template)
   // 2.生成render方法(render方法执行后的返回结果是虚拟dom)
-    /**
+  /**
      *   目标生成一个render函数
      *   render(h){
      *     return h('div',{id：‘app'},h('div',{style:{color:'red'}},_v(_s(name)+’hello')),
@@ -91,9 +91,10 @@ export function compileToFunction(template) {
      *   其中 _v函数表示创建文本节点 target._v== createTextVNode
      *   其中 _c函数表示创建元素节点 target._c== createElement
      */
+  // console.log('ast', ast)
   let code =  codeGen(ast)
   code = `with(this){return ${code}}`
+  // console.log('code', code)
   let render = new Function(code)
-
   return render
 }
