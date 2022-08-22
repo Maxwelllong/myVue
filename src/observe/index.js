@@ -1,5 +1,7 @@
 import { newArrayPrototype } from "./array";
 
+import Dep from './dep'
+
 export function observe(data) {
   if (typeof data !== "object" || data === null) return;
 
@@ -36,14 +38,19 @@ class Observe {
 
 function defineReactive(target, key, value) {
   observe(value);
+  let dep = new Dep()
   Object.defineProperty(target, key, {
     get() {
+      if(dep.target){
+        dep.depend() // 让该属性收集器记住当前watcher
+      }
       return value;
     },
     set(newValue) {
       if (newValue === value) return;
       observe(newValue);
       value = newValue;
+      dep.notify() //通知更新
     }
   });
 }

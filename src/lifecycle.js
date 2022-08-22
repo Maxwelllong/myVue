@@ -13,15 +13,17 @@
  */
 import {createTextVNode,createElementVNode} from './vdom'
 
+import Watcher from './observe/watcher'
+
 function createElm(vnode){
   // console.log('vnode-c', vnode)
   let {tag,key,data,children,text} = vnode
   if(typeof tag === 'string'){
     // 标签
     vnode.el = document.createElement(tag)
-    console.log('vnode.el', vnode.el)
+    // console.log('vnode.el', vnode.el)
     patchProps(vnode.el,data) // 更新属性
-    console.log('children', children)
+    // console.log('children', children)
     if(children){
       children.forEach(child => {
         vnode.el.appendChild(createElm(child))
@@ -52,8 +54,8 @@ function patch(oldVNode,vnode){
   if(isRealElement){ //判断是否为真实元素
     const elm = oldVNode
     const parentElm = elm.parentNode // 拿到父元素
-    console.log('vnode-elm', elm)
-    console.log('vnode-parentElm', parentElm)
+    // console.log('vnode-elm', elm)
+    // console.log('vnode-parentElm', parentElm)
     let newElm =  createElm(vnode)
     // console.log('newElm', newElm)
     parentElm.insertBefore(newElm,elm.nextSibling)
@@ -70,10 +72,7 @@ export function initLifeCycle(Vue){
     const vm = this
     const el = vm.$el
     //有初始化和更新节点的操作
-    // console.log('el', el)
-    // console.log('vnode', vnode)
     vm.$el = patch(el,vnode)
-    console.log('vm.$el', vm.$el)
   }
   /**
    * _c('div',{},...children)
@@ -105,10 +104,14 @@ export function initLifeCycle(Vue){
   }
 }
 
+// 渲染和挂载节点
 export function mountComponent(vm,el){
   vm.$el = el
   // 1.调用render方法产生虚拟节点
-  console.log('vm._render(123)',vm._update (vm._render()))
+  const updateComponent = ()=>{
+    vm._update(vm._render()) // vm.$options.render() 虚拟节点
+  }
+  new Watcher(vm,updateComponent,true) // true 标识是一个渲染watcher
   // vm._update(vm._render())
   // 2.根据虚拟节点DOM产生真实DOM
   // 3.插入到el元素中

@@ -17,7 +17,7 @@ function proxy(vm, target, key) {
       return vm[target][key];
     },
     set(v) {
-      console.log("keys", key);
+      // console.log("keys", key);
       return (vm[target][key] = v);
     }
   });
