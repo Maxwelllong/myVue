@@ -98,8 +98,6 @@ export function initLifeCycle(Vue){
   // 渲染虚拟dom
   Vue.prototype._render = function (){
     const vm = this
-    // console.log('vm.name', vm.name)
-    // console.log('vm.age', vm.age)
     return vm.$options.render.call(vm)
   }
 }

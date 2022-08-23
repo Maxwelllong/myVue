@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/miniVue.iml" filepath="$PROJECT_DIR$/.idea/miniVue.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../myMiniVue/.idea/myMiniVue.iml" filepath="$PROJECT_DIR$/../../myMiniVue/.idea/myMiniVue.iml" />
     </modules>
   </component>
 </project>

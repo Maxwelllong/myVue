@@ -59,7 +59,7 @@ function refreshScheduleQueue(){
   freshQueue.forEach(q => q.run())
 }
 
-function quenUpdate(watcher){
+function queueWatcher(watcher){
   const id = watcher.id
   if (!has[id]){
     quenen.push(watcher)
@@ -73,7 +73,48 @@ function quenUpdate(watcher){
 
 // 需要给每个属性增加一个dep，目的是收集watcher
 // 一个视图中 有多个属性 或者 一个属性可以对应多个视图
+let callbacks = []
+let waiting = false
+function fleshCallback(){
+  let cbs = callback.slice(0)
+  waiting = false
+  callbacks = []
+  callbacks.forEach(cb => cb())
+}
+// 采用优雅降级的方式实现异步nextTick
+let timeFunc;
+if(promise){
+  timeFunc = ()=>{
+    Promise.resolve().then(fleshCallback)
+  }
+}else if (MutationObserver){
+  let observe = new MutationObserver(fleshCallback)
+  let textNode = document.createTextNode(1)
+  observer.observe(textNode,{
+    characterData:true
+  })
+  timeFunc = ()=>{
+    textNode.textContent = 2
+  }
+}else if (setImmediate){
+  timeFunc = ()=>{
+    setImmediate(fleshCallback)
+  }
+}else{
+  timeFunc = ()=>{
+    setTimeout(fleshCallback)
+  }
+}
 
+
+export function nextTick(cb){
+  if (!waiting){
+    timeFunc(()=>{
+      fleshCallback()
+    },0)
+    waiting = true
+  }
+}
 
 export default Watcher
 
